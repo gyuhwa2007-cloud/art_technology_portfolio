@@ -413,7 +413,7 @@
 
 <script>
 // ============================================================
-// GEOMETRY SPLASH - Full Game (Fixed Coordinate Mapping)
+// GEOMETRY SPLASH - Full Game (Strict Target Logic Fix)
 // ============================================================
 
 const bgCanvas = document.getElementById('bgCanvas');
@@ -866,12 +866,13 @@ function setPrompt(shape) {
   }
 }
 
+// [핵심 수정된 도형 생성 및 타겟 보장 로직]
 function spawnShapes() {
   shapes = [];
   const numShapes = 3 + Math.floor(difficulty);
   const available = [...SHAPES];
   
-  // 1. 확실하게 타겟 도형을 선정
+  // 1. 이번 라운드의 정답(타겟) 도형을 무작위로 딱 1개 선정
   const targetIdx = Math.floor(Math.random() * available.length);
   targetShape = available[targetIdx];
   setPrompt(targetShape);
@@ -881,6 +882,7 @@ function spawnShapes() {
   const shapeSize = Math.min(W, H) * 0.08;
   const minDist = shapeSize * 3.5;
 
+  // 2. 화면에 배치될 위치 좌표 미리 계산
   for (let i = 0; i < numShapes; i++) {
     let attempts = 0;
     let pos;
@@ -901,23 +903,37 @@ function spawnShapes() {
       attempts++;
     } while (!valid && attempts < 50);
     positions.push(pos);
-
-    let shapeData;
-    if (i === 0) {
-      // 첫 번째 도형은 무조건 정답(타겟) 도형으로 설정
-      shapeData = { ...targetShape, x: pos.x, y: pos.y, size: shapeSize, hue: Math.random() * 360, isTarget: true };
-    } else {
-      // 나머지는 타겟이 아닌 다른 도형들 중에서 무작위 선택
-      const otherShapes = available.filter(s => s.id !== targetShape.id);
-      const randShape = otherShapes[Math.floor(Math.random() * otherShapes.length)];
-      shapeData = { ...randShape, x: pos.x, y: pos.y, size: shapeSize, hue: Math.random() * 360, isTarget: false };
-    }
-    shapes.push(shapeData);
   }
 
-  // 2. 섞을 때 데이터 꼬임 방지를 위해 위치와 속성이 정확히 유지되도록 안전하게 셔플
-  shapes.sort(() => Math.random() - 0.5);
+  // 3. 도형 종류 배정: 정확히 정답 도형 1개 + 나머지는 오답 도형들로만 구성
+  // 오답 후보군 (타겟과 다른 도형들)
+  const distractorShapes = available.filter(s => s.id !== targetShape.id);
   
+  const assignedTypes = [];
+  // 정답 도형 1개 강제 추가
+  assignedTypes.push({ ...targetShape, isTarget: true });
+
+  // 나머지 개수만큼 오답 도형 중에서 랜덤 선택해서 추가 (중복 허용 또는 다양한 오답)
+  for (let i = 1; i < numShapes; i++) {
+    const randDistractor = distractorShapes[Math.floor(Math.random() * distractorShapes.length)];
+    assignedTypes.push({ ...randDistractor, isTarget: false });
+  }
+
+  // 4. 생성된 도형 목록을 무작위로 섞어서 위치에 배치 (타겟이 어디에 있을지 모르게 함)
+  assignedTypes.sort(() => Math.random() - 0.5);
+
+  for (let i = 0; i < numShapes; i++) {
+    const t = assignedTypes[i];
+    const pos = positions[i];
+    shapes.push({
+      ...t,
+      x: pos.x,
+      y: pos.y,
+      size: shapeSize,
+      hue: Math.random() * 360
+    });
+  }
+
   timer = maxTimer;
   isProcessing = false;
 }
@@ -941,13 +957,12 @@ function drawShapes() {
   });
 }
 
-// [수정된 핵심 함수] 캔버스 내부 해상도와 CSS 뷰포트 크기 비율을 정확히 계산하는 좌표 매핑
+// 좌표 매핑 함수
 function getCanvasCoordinates(e, canvas) {
   const rect = canvas.getBoundingClientRect();
   const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
   const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
 
-  // CSS 크기와 실제 캔버스 내부 비트맵 해상도 비율 계산 (오차 원인 완벽 차단)
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
 
@@ -968,12 +983,12 @@ function handleClick(e) {
     const dx = mx - shape.x;
     const dy = my - shape.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    const hitRadius = shape.size * 1.6; // 클릭 판정 영역 살짝 확대
+    const hitRadius = shape.size * 1.6;
 
     if (dist < hitRadius) {
       isProcessing = true;
       if (shape.isTarget) {
-        // 정답 판정
+        // 정답!
         playCorrect();
         const comboBonus = Math.floor(combo * 10);
         const points = 100 + comboBonus;
@@ -997,7 +1012,7 @@ function handleClick(e) {
           isProcessing = false;
         }, 300);
       } else {
-        // 오답 판정
+        // 오답!
         playWrong();
         lives--;
         combo = 1;
