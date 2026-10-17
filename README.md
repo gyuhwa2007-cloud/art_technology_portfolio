@@ -1,2 +1,2 @@
 # art_technology_portfolio
-portfolio website
+20261167 Kim Gyuhwa portfolio
