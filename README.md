@@ -1,2 +1,2 @@
-# art-technology_portfolio
+# art_technology_portfolio
 portfolio website
