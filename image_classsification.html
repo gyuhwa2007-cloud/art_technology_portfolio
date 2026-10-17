@@ -1,1 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>드럼 심벌 이미지 분류기 | AI 포트폴리오</title>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: #222;
+            background-color: #f8f9fa;
+        }
+        header {
+            border-bottom: 2px solid #111;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .badge-group {
+            margin-bottom: 12px;
+        }
+        .badge {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .badge-secondary {
+            background-color: #6c757d;
+        }
+        h1 {
+            margin: 8px 0;
+            font-size: 32px;
+            letter-spacing: -0.5px;
+        }
+        .meta {
+            color: #666;
+            font-size: 15px;
+        }
+        section {
+            background: white;
+            padding: 28px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            margin-bottom: 25px;
+        }
+        h2 {
+            border-left: 4px solid #007bff;
+            padding-left: 12px;
+            margin-top: 0;
+            font-size: 20px;
+            color: #111;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .highlight-box {
+            background-color: #eef6ff;
+            border: 1px solid #cce5ff;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        .link-btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .link-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
 
+    <header>
+        <div class="badge-group">
+            <span class="badge">Data & AI</span>
+            <span class="badge badge-secondary">개인 프로젝트</span>
+        </div>
+        <h1>드럼 심벌 AI 이미지 분류기</h1>
+        <p class="meta">서강대학교 아트앤테크놀로지 포트폴리오 | 음악과 기술의 융합 프로젝트</p>
+    </header>
+
+    <section>
+        <h2>프로젝트 개요</h2>
+        <p>
+            Data & AI 수업에서 체득한 기술적 역량과 저의 음악적 전문성을 결합하여 기획한 <strong>드럼 심벌 이미지 분류기</strong> 프로젝트입니다. 
+            입력된 심벌 이미지를 딥러닝 모델로 실시간 분석하여, 각 악기의 고유한 특성과 카테고리를 정확하게 판별해내는 AI 모델을 구현했습니다.
+        </p>
+
+        <ul style="line-height: 1.8; margin-top: 15px;">
+            <li><strong>프로젝트명:</strong> Drum Cymbal Image Classifier</li>
+            <li><strong>사용 기술:</strong> Python, Cline AI, 파이썬 기반 AI 라이브러리</li>
+            <li><strong>핵심 목표:</strong> 심벌 이미지 데이터 정리, 인공지능 모델 학습 및 실시간 판별 기능 구현</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>이미지 분류기 링크</h2>
+        <p>
+            이미지 분류기의 상세한 작동 과정과 결과 화면은 아래 링크를 통해 확인하실 수 있습니다.
+        </p>
+        
+        <a href="https://gyuhwa2007-cloud.github.io/mas1004-assignment1/" target="_blank" class="link-btn">
+            이미지 분류기 웹사이트
+        </a>
+    </section>
+
+    <section>
+        <h2>개발 과정</h2>
+        <p>
+            드럼 심벌 이미지 분류기를 직접 구현하면서, AI 모델이 시각적인 미세한 특징을 학습하여 비슷한 이미지를 구별해 낼 수 있음을 확인했습니다.
+            하지만 크래시(Crash), 라이드(Ride), 스플래시(Splash) 같은 심벌은 원래 청각적인 소리에 의존해 구분되는 악기이기 때문에, 순수 시각 데이터만으로는 세부 모델 분류에 한계가 있음을 깨달았습니다.
+            또한, 하이햇(Hi-hat) 심벌의 경우 '하이햇 스탠드'라는 주변 구조적 특징이 뒷받침되어야만 AI가 정확히 인식할 수 있다는 점을 발견하였습니다.
+        </p>
+        
+        <div class="highlight-box">
+            <strong>배운 점 & 향후 지향점:</strong>
+            <ul>
+                <li>
+                    <strong>데이터 정리 및 일반화:</strong> 
+                    학습될 이미지들을 AI를 통해 수집하고 손수 분리하면서 AI 학습용 데이터를 다루는 방법을 익혔습니다.
+                </li>
+                <li>
+                    <strong>실시간 분류 모델 구현의 이해:</strong> 
+                    학습된 모델이 새로운 이미지를 입력받았을 때 정확하게 종류를 도출해내는 전체 흐름을 이해했습니다.
+                </li>
+                <li>
+                    <strong>음악적 지식의 기술적 접목:</strong> 
+                    실제 악기에 대한 이해도를 바탕으로 AI 프로젝트에 독창적인 아이디어를 녹여내는 개발 역량을 쌓았습니다.
+                </li>
+                <li>
+                    <strong>보완해야 할 점:</strong> 
+                    악기는 눈으로만 분류하기에는 한계가 많음을 이해하였으며, 향후에는 오디오 데이터를 활용한 소리 기반의 악기 분류기를 직접 제작해보고 싶다는 확장된 시야를 갖게 되었습니다.
+                </li>
+            </ul>
+        </div>
+    </section>
+
+</body>
+</html>
