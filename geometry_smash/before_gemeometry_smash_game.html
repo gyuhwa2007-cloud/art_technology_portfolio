@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geometry Splash - Luxurious Shape Game</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    overflow: hidden;
+    background: #0a0015;
+    font-family: 'Rajdhani', sans-serif;
+    height: 100vh;
+    width: 100vw;
+    user-select: none;
+  }
+
+  canvas {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+  }
+
+  #bgCanvas {
+    z-index: 0;
+  }
+
+  #gameCanvas {
+    z-index: 1;
+  }
+
+  #particleCanvas {
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  #ui {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+  }
+
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 900px;
+    padding: 12px 24px;
+    background: rgba(10, 0, 30, 0.6);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.1), inset 0 0 40px rgba(255, 215, 0, 0.05);
+    pointer-events: auto;
+    margin-bottom: 15px;
+  }
+
+  .score-box {
+    text-align: center;
+  }
+
+  .score-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255, 215, 0, 0.6);
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .score-value {
+    font-size: 32px;
+    font-weight: 900;
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #ffd700, #ff6b6b, #ffd700);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2s linear infinite;
+  }
+
+  @keyframes shimmer {
+    to { background-position: 200% center; }
+  }
+
+  .combo-display {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ff6b9d;
+    font-family: 'Orbitron', sans-serif;
+    min-height: 20px;
+    transition: all 0.3s;
+  }
+
+  .combo-display.active {
+    animation: comboPulse 0.5s ease;
+  }
+
+  @keyframes comboPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); text-shadow: 0 0 30px #ff6b9d; }
+  }
+
+  #prompt {
+    font-size: 24px;
+    font-weight: 700;
+    pointer-events: auto;
+    text-align: center;
+    margin-top: 10px;
+    padding: 16px 40px;
+    background: rgba(10, 0, 30, 0.7);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    border-radius: 50px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.15), inset 0 0 30px rgba(255, 215, 0, 0.05);
+    color: #fff;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+  }
+
+  #prompt .highlight {
+    background: linear-gradient(135deg, #ffd700, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+  }
+
+  #prompt.correct {
+    border-color: #00ff88;
+    box-shadow: 0 0 80px rgba(0, 255, 136, 0.3);
+  }
+
+  #prompt.wrong {
+    border-color: #ff3355;
+    box-shadow: 0 0 80px rgba(255, 51, 85, 0.3);
+    animation: shake 0.4s ease;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-15px); }
+    50% { transform: translateX(15px); }
+    75% { transform: translateX(-10px); }
+  }
+
+  #lives {
+    display: flex;
+    gap: 8px;
+    font-size: 22px;
+    pointer-events: auto;
+  }
+
+  .heart {
+    color: #ff3355;
+    text-shadow: 0 0 15px rgba(255, 51, 85, 0.5);
+    transition: all 0.3s;
+  }
+
+  .heart.lost {
+    color: #333;
+    text-shadow: none;
+  }
+
+  #gameOver {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 10;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+    pointer-events: auto;
+  }
+
+  #gameOver.show {
+    display: flex;
+  }
+
+  #gameOverBox {
+    text-align: center;
+    padding: 60px;
+    background: rgba(10, 0, 30, 0.9);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    border-radius: 30px;
+    box-shadow: 0 0 100px rgba(255, 215, 0, 0.2), inset 0 0 60px rgba(255, 215, 0, 0.05);
+    max-width: 500px;
+  }
+
+  #gameOverBox h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 42px;
+    background: linear-gradient(135deg, #ffd700, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+
+  #gameOverBox .final-score {
+    font-size: 64px;
+    font-weight: 900;
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #ffd700, #ff6b6b, #ffd700);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2s linear infinite;
+    margin: 10px 0;
+  }
+
+  #gameOverBox p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+    margin: 5px 0;
+  }
+
+  #restartBtn {
+    margin-top: 30px;
+    padding: 16px 50px;
+    font-size: 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    border: 2px solid #ffd700;
+    border-radius: 50px;
+    background: transparent;
+    color: #ffd700;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 2px;
+    pointer-events: auto;
+  }
+
+  #restartBtn:hover {
+    background: #ffd700;
+    color: #0a0015;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.4);
+    transform: scale(1.05);
+  }
+
+  #startScreen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    pointer-events: auto;
+  }
+
+  #startScreen.hidden {
+    display: none;
+  }
+
+  #startBox {
+    text-align: center;
+    padding: 60px;
+    max-width: 600px;
+  }
+
+  #startBox h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 56px;
+    background: linear-gradient(135deg, #ffd700, #ff6b6b, #9b59b6, #ffd700);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+    margin-bottom: 10px;
+    letter-spacing: 4px;
+  }
+
+  #startBox .subtitle {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 40px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+  }
+
+  #startBox .shapes-preview {
+    font-size: 50px;
+    margin-bottom: 30px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  #startBtn {
+    padding: 20px 60px;
+    font-size: 22px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    border: 2px solid #ffd700;
+    border-radius: 50px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 107, 107, 0.1));
+    color: #ffd700;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 3px;
+    pointer-events: auto;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.1);
+  }
+
+  #startBtn:hover {
+    background: linear-gradient(135deg, #ffd700, #ff6b6b);
+    color: #0a0015;
+    box-shadow: 0 0 80px rgba(255, 215, 0, 0.4);
+    transform: scale(1.05);
+  }
+
+  #startBox .instructions {
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 30px;
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  #timerBar {
+    width: 100%;
+    max-width: 900px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 10px;
+    pointer-events: auto;
+  }
+
+  #timerFill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff6b6b, #ffd700, #00ff88);
+    border-radius: 2px;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+
+  .shape-emoji {
+    display: inline-block;
+    margin: 0 5px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<canvas id="gameCanvas"></canvas>
+<canvas id="particleCanvas"></canvas>
+
+<div id="ui">
+  <div id="header">
+    <div class="score-box">
+      <div class="score-label">Score</div>
+      <div class="score-value" id="scoreDisplay">0</div>
+    </div>
+    <div class="score-box">
+      <div class="score-label">Combo</div>
+      <div class="combo-display" id="comboDisplay">x1</div>
+    </div>
+    <div id="lives"></div>
+  </div>
+  <div id="prompt">Click the <span class="highlight">●</span> shape!</div>
+  <div id="timerBar"><div id="timerFill"></div></div>
+</div>
+
+<div id="startScreen">
+  <div id="startBox">
+    <h1>GEOMETRY SPLASH</h1>
+    <div class="subtitle">✦ Shape Challenge ✦</div>
+    <div class="shapes-preview">● ■ ▲ ★ ⬟ ◆</div>
+    <button id="startBtn">START GAME</button>
+    <div class="instructions">
+      Click the correct shape before time runs out!<br>
+      Build combos for massive points ✦
+    </div>
+  </div>
+</div>
+
+<div id="gameOver">
+  <div id="gameOverBox">
+    <h1>✦ GAME OVER ✦</h1>
+    <div class="final-score" id="finalScore">0</div>
+    <p>Shapes Matched: <span id="matchedCount">0</span></p>
+    <p>Best Combo: <span id="bestCombo">1</span>x</p>
+    <button id="restartBtn">PLAY AGAIN</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// GEOMETRY SPLASH - Full Game
+// ============================================================
+
+// --- Canvas Setup ---
+const bgCanvas = document.getElementById('bgCanvas');
+const gameCanvas = document.getElementById('gameCanvas');
+const particleCanvas = document.getElementById('particleCanvas');
+const ctxBg = bgCanvas.getContext('2d');
+const ctxGame = gameCanvas.getContext('2d');
+const ctxParticle = particleCanvas.getContext('2d');
+
+let W, H;
+
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  [bgCanvas, gameCanvas, particleCanvas].forEach(c => {
+    c.width = W;
+    c.height = H;
+  });
+}
+resize();
+window.addEventListener('resize', resize);
+
+// --- Audio System ---
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+
+function initAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+}
+
+function playTone(freq, duration, type = 'sine', volume = 0.15) {
+  try {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+function playCorrect() {
+  playTone(523.25, 0.1);
+  setTimeout(() => playTone(659.25, 0.1), 80);
+  setTimeout(() => playTone(783.99, 0.15), 160);
+}
+
+function playWrong() {
+  playTone(200, 0.3, 'sawtooth', 0.1);
+  setTimeout(() => playTone(150, 0.3, 'sawtooth', 0.08), 150);
+}
+
+function playCombo() {
+  const notes = [523.25, 659.25, 783.99, 1046.5];
+  notes.forEach((n, i) => setTimeout(() => playTone(n, 0.12, 'sine', 0.12), i * 60));
+}
+
+function playGameOver() {
+  const notes = [400, 350, 300, 250];
+  notes.forEach((n, i) => setTimeout(() => playTone(n, 0.3, 'triangle', 0.12), i * 150));
+}
+
+// --- Background ---
+const bgStars = [];
+const bgParticles = [];
+const bgOrbs = [];
+
+function initBackground() {
+  bgStars.length = 0;
+  bgParticles.length = 0;
+  bgOrbs.length = 0;
+  for (let i = 0; i < 120; i++) {
+    bgStars.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 2 + 0.5,
+      a: Math.random() * 0.8 + 0.2,
+      speed: Math.random() * 0.3 + 0.1,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+  for (let i = 0; i < 30; i++) {
+    bgParticles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3 - 0.2,
+      r: Math.random() * 3 + 1,
+      hue: Math.random() * 360,
+      life: Math.random() * 0.5 + 0.5
+    });
+  }
+  for (let i = 0; i < 5; i++) {
+    bgOrbs.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 150 + 80,
+      hue: Math.random() * 360,
+      speed: Math.random() * 0.2 + 0.05,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function drawBackground(time) {
+  const grad = ctxBg.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.8);
+  grad.addColorStop(0, '#1a0033');
+  grad.addColorStop(0.3, '#0d0020');
+  grad.addColorStop(0.6, '#080018');
+  grad.addColorStop(1, '#020010');
+  ctxBg.fillStyle = grad;
+  ctxBg.fillRect(0, 0, W, H);
+
+  bgOrbs.forEach(orb => {
+    const x = orb.x + Math.sin(time * orb.speed + orb.phase) * 60;
+    const y = orb.y + Math.cos(time * orb.speed * 0.7 + orb.phase) * 40;
+    const gradient = ctxBg.createRadialGradient(x, y, 0, x, y, orb.r);
+    gradient.addColorStop(0, `hsla(${orb.hue}, 100%, 70%, 0.08)`);
+    gradient.addColorStop(0.5, `hsla(${orb.hue + 30}, 100%, 50%, 0.04)`);
+    gradient.addColorStop(1, `hsla(${orb.hue}, 100%, 30%, 0)`);
+    ctxBg.fillStyle = gradient;
+    ctxBg.fillRect(x - orb.r, y - orb.r, orb.r * 2, orb.r * 2);
+  });
+
+  bgStars.forEach(star => {
+    const alpha = star.a * (0.6 + 0.4 * Math.sin(time * star.speed + star.phase));
+    ctxBg.beginPath();
+    ctxBg.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+    ctxBg.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctxBg.fill();
+    if (star.r > 1.5) {
+      ctxBg.beginPath();
+      ctxBg.arc(star.x, star.y, star.r * 3, 0, Math.PI * 2);
+      ctxBg.fillStyle = `rgba(255, 255, 255, ${alpha * 0.1})`;
+      ctxBg.fill();
+    }
+  });
+
+  bgParticles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= 0.002;
+    if (p.life <= 0 || p.y < -10 || p.x < -10 || p.x > W + 10) {
+      p.x = Math.random() * W;
+      p.y = H + 10;
+      p.vx = (Math.random() - 0.5) * 0.3;
+      p.vy = (Math.random() - 0.5) * 0.3 - 0.3;
+      p.life = Math.random() * 0.5 + 0.5;
+    }
+    const alpha = p.life * 0.6;
+    ctxBg.beginPath();
+    ctxBg.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctxBg.fillStyle = `hsla(${p.hue}, 100%, 70%, ${alpha})`;
+    ctxBg.fill();
+    ctxBg.beginPath();
+    ctxBg.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2);
+    ctxBg.fillStyle = `hsla(${p.hue}, 100%, 70%, ${alpha * 0.1})`;
+    ctxBg.fill();
+  });
+}
+
+// --- Game Shapes ---
+const SHAPES = [
+  { id: 'circle', label: '●', draw: (ctx, x, y, r, hue, alpha) => {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${hue}, 100%, 65%, ${alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `hsla(${hue}, 100%, 85%, ${alpha * 0.8})`;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    const grad = ctx.createRadialGradient(x - r*0.3, y - r*0.3, 0, x, y, r);
+    grad.addColorStop(0, `hsla(0, 0%, 100%, ${alpha * 0.3})`);
+    grad.addColorStop(1, `hsla(0, 0%, 100%, 0)`);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }},
+  { id: 'square', label: '■', draw: (ctx, x, y, r, hue, alpha) => {
+    const s = r * 1.5;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillStyle = `hsla(${hue}, 100%, 65%, ${alpha})`;
+    ctx.fillRect(-s/2, -s/2, s, s);
+    ctx.strokeStyle = `hsla(${hue}, 100%, 85%, ${alpha * 0.8})`;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(-s/2, -s/2, s, s);
+    const grad = ctx.createRadialGradient(-s*0.2, -s*0.2, 0, 0, 0, s*0.8);
+    grad.addColorStop(0, `hsla(0, 0%, 100%, ${alpha * 0.3})`);
+    grad.addColorStop(1, `hsla(0, 0%, 100%, 0)`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(-s/2, -s/2, s, s);
+    ctx.restore();
+  }},
+  { id: 'triangle', label: '▲', draw: (ctx, x, y, r, hue, alpha) => {
+    const s = r * 1.6;
+    ctx.beginPath();
+    ctx.moveTo(x, y - s);
+    ctx.lineTo(x - s * 0.866, y + s * 0.5);
+    ctx.lineTo(x + s * 0.866, y + s * 0.5);
+    ctx.closePath();
+    ctx.fillStyle = `hsla(${hue}, 100%, 65%, ${alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `hsla(${hue}, 100%, 85%, ${alpha * 0.8})`;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    const grad = ctx.createRadialGradient(x, y - s*0.3, 0, x, y, s);
+    grad.addColorStop(0, `hsla(0, 0%, 100%, ${alpha * 0.3})`);
+    grad.addColorStop(1, `hsla(0, 0%, 100%, 0)`);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }},
+  { id: 'star', label: '★', draw: (ctx, x, y, r, hue, alpha) => {
+    const spikes = 5;
+    const outerR = r * 1.4;
+    const innerR = outerR * 0.4;
+    ctx.beginPath();
+    for (let i = 0; i < spikes * 2; i++) {
+      const radius = i % 2 === 0 ? outerR : innerR;
+      const angle = (i * Math.PI) / spikes - Math.PI / 2;
+      const px = x + radius * Math.cos(angle);
+      const py = y + radius * Math.sin(angle);
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = `hsla(${hue}, 100%, 65%, ${alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `hsla(${hue}, 100%, 85%, ${alpha * 0.8})`;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, outerR);
+    grad.addColorStop(0, `hsla(0, 0%, 100%, ${alpha * 0.3})`);
+    grad.addColorStop(1, `hsla(0, 0%, 100%, 0)`);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }},
+  { id: 'pentagon', label: '⬟', draw: (ctx, x, y, r, hue, alpha) => {
+    const sides = 5;
+    const radius = r * 1.4;
+    ctx.beginPath();
+    for (let i = 0; i < sides; i++) {
+      const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
+      const px = x + radius * Math.cos(angle);
+      const py = y + radius * Math.sin(angle);
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = `hsla(${hue}, 100%, 65%, ${alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `hsla(${hue}, 100%, 85%, ${alpha * 0.8})`;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    grad.addColorStop(0, `hsla(0, 0%, 100%, ${alpha * 0.3})`);
+    grad.addColorStop(1, `hsla(0, 0%, 100%, 0)`);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }},
+  { id: 'hexagon', label: '◆', draw: (ctx, x, y, r, hue, alpha) => {
+    const sides = 6;
+    const radius = r * 1.4;
+    ctx.beginPath();
+    for (let i = 0; i < sides; i++) {
+      const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
+      const px = x + radius * Math.cos(angle);
+      const py = y + radius * Math.sin(angle);
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = `hsla(${hue}, 100%, 65%, ${alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `hsla(${hue}, 100%, 85%, ${alpha * 0.8})`;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    grad.addColorStop(0, `hsla(0, 0%, 100%, ${alpha * 0.3})`);
+    grad.addColorStop(1, `hsla(0, 0%, 100%, 0)`);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }}
+];
+
+// --- Particle System ---
+class Particle {
+  constructor(x, y, hue, type = 'burst') {
+    this.x = x;
+    this.y = y;
+    this.hue = hue;
+    this.type = type;
+    this.life = 1;
+    this.decay = 0.008 + Math.random() * 0.01;
+
+    if (type === 'burst') {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 6;
+      this.vx = Math.cos(angle) * speed;
+      this.vy = Math.sin(angle) * speed;
+      this.size = 3 + Math.random() * 5;
+      this.gravity = 0.05;
+    } else if (type === 'confetti') {
+      this.vx = (Math.random() - 0.5) * 8;
+      this.vy = -Math.random() * 10 - 2;
+      this.size = 4 + Math.random() * 6;
+      this.gravity = 0.15;
+      this.rotation = Math.random() * Math.PI * 2;
+      this.rotSpeed = (Math.random() - 0.5) * 0.2;
+    } else if (type === 'sparkle') {
+      this.vx = (Math.random() - 0.5) * 2;
+      this.vy = (Math.random() - 0.5) * 2;
+      this.size = 1 + Math.random() * 3;
+      this.gravity = 0;
+    }
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += this.gravity;
+    this.vx *= 0.98;
+    this.life -= this.decay;
+    if (this.type === 'confetti') {
+      this.rotation += this.rotSpeed;
+    }
+  }
+
+  draw(ctx) {
+    if (this.life <= 0) return;
+    const alpha = this.life;
+    const hueShift = this.hue + (1 - this.life) * 60;
+
+    if (this.type === 'confetti') {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      ctx.fillStyle = `hsla(${hueShift}, 100%, 70%, ${alpha})`;
+      ctx.fillRect(-this.size/2, -this.size/4, this.size, this.size/2);
+      ctx.restore();
+    } else if (this.type === 'sparkle') {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(50, 100%, 90%, ${alpha * 0.8})`;
+      ctx.fill();
+      ctx.strokeStyle = `hsla(50, 100%, 90%, ${alpha * 0.5})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(this.x - this.size * 3, this.y);
+      ctx.lineTo(this.x + this.size * 3, this.y);
+      ctx.moveTo(this.x, this.y - this.size * 3);
+      ctx.lineTo(this.x, this.y + this.size * 3);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${hueShift}, 100%, 70%, ${alpha * 0.9})`;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * this.life * 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${hueShift}, 100%, 70%, ${alpha * 0.15})`;
+      ctx.fill();
+    }
+  }
+}
+
+let particles = [];
+
+function spawnParticles(x, y, hue, count = 30) {
+  for (let i = 0; i < count; i++) {
+    particles.push(new Particle(x, y, hue, 'burst'));
+  }
+  for (let i = 0; i < 15; i++) {
+    particles.push(new Particle(x, y, hue, 'confetti'));
+  }
+  for (let i = 0; i < 10; i++) {
+    particles.push(new Particle(x, y, hue, 'sparkle'));
+  }
+}
+
+function spawnComboParticles() {
+  for (let i = 0; i < 50; i++) {
+    const x = Math.random() * W;
+    const y = Math.random() * H * 0.5;
+    const hue = Math.random() * 360;
+    particles.push(new Particle(x, y, hue, 'confetti'));
+  }
+}
+
+// --- Game State ---
+let gameState = 'start';
+let score = 0;
+let lives = 3;
+let combo = 1;
+let bestCombo = 1;
+let matchedCount = 0;
+let currentShape = null;
+let targetShape = null;
+let shapes = [];
+let timer = 0;
+let maxTimer = 3;
+let time = 0;
+let difficulty = 1;
+let spawnTimer = 0;
+let spawnInterval = 2.5;
+let isProcessing = false;
+
+const MAX_LIVES = 3;
+
+// --- UI Elements ---
+const scoreDisplay = document.getElementById('scoreDisplay');
+const comboDisplay = document.getElementById('comboDisplay');
+const promptEl = document.getElementById('prompt');
+const livesEl = document.getElementById('lives');
+const timerFill = document.getElementById('timerFill');
+const startScreen = document.getElementById('startScreen');
+const startBtn = document.getElementById('startBtn');
+const gameOverScreen = document.getElementById('gameOver');
+const restartBtn = document.getElementById('restartBtn');
+const finalScore = document.getElementById('finalScore');
+const matchedCountEl = document.getElementById('matchedCount');
+const bestComboEl = document.getElementById('bestCombo');
+
+function updateLives() {
+  livesEl.innerHTML = '';
+  for (let i = 0; i < MAX_LIVES; i++) {
+    const span = document.createElement('span');
+    span.className = 'heart' + (i < lives ? '' : ' lost');
+    span.textContent = '♥';
+    livesEl.appendChild(span);
+  }
+}
+
+function updateUI() {
+  scoreDisplay.textContent = score;
+  comboDisplay.textContent = `x${combo}`;
+  if (combo > 1) {
+    comboDisplay.classList.add('active');
+  } else {
+    comboDisplay.classList.remove('active');
+  }
+  updateLives();
+}
+
+function setPrompt(shape) {
+  if (shape) {
+    promptEl.innerHTML = `Click the <span class="highlight">${shape.label}</span> shape!`;
+  }
+}
+
+function spawnShapes() {
+  shapes = [];
+  const numShapes = 3 + Math.floor(difficulty);
+  const available = [...SHAPES];
+  const targetIdx = Math.floor(Math.random() * available.length);
+  targetShape = available[targetIdx];
+  setPrompt(targetShape);
+
+  const positions = [];
+  const padding = 60;
+  const shapeSize = Math.min(W, H) * 0.08;
+  const minDist = shapeSize * 3;
+
+  for (let i = 0; i < numShapes; i++) {
+    let attempts = 0;
+    let pos;
+    let valid;
+    do {
+      const x = padding + Math.random() * (W - padding * 2);
+      const y = H * 0.35 + Math.random() * (H * 0.5);
+      pos = { x, y };
+      valid = true;
+      for (const p of positions) {
+        const dx = p.x - pos.x;
+        const dy = p.y - pos.y;
+        if (Math.sqrt(dx * dx + dy * dy) < minDist) {
+          valid = false;
+          break;
+        }
+      }
+      attempts++;
+    } while (!valid && attempts < 50);
+    positions.push(pos);
+
+    let shapeData;
+    if (i === 0) {
+      shapeData = { ...targetShape, x: pos.x, y: pos.y, size: shapeSize, hue: Math.random() * 360, isTarget: true };
+    } else {
+      const otherShapes = available.filter(s => s.id !== targetShape.id);
+      const randShape = otherShapes[Math.floor(Math.random() * otherShapes.length)];
+      shapeData = { ...randShape, x: pos.x, y: pos.y, size: shapeSize, hue: Math.random() * 360, isTarget: false };
+    }
+    shapes.push(shapeData);
+  }
+
+  shapes.sort(() => Math.random() - 0.5);
+  timer = maxTimer;
+  isProcessing = false;
+}
+
+function drawShapes() {
+  shapes.forEach(shape => {
+    const pulse = 1 + 0.05 * Math.sin(time * 3 + shape.x * 0.01);
+    const r = shape.size * pulse;
+    const alpha = 0.9 + 0.1 * Math.sin(time * 2 + shape.y * 0.01);
+
+    ctxGame.shadowColor = `hsla(${shape.hue}, 100%, 70%, 0.3)`;
+    ctxGame.shadowBlur = 25;
+    shape.draw(ctxGame, shape.x, shape.y, r, shape.hue, alpha);
+    ctxGame.shadowBlur = 0;
+
+    ctxGame.beginPath();
+    ctxGame.arc(shape.x, shape.y, r + 8, 0, Math.PI * 2);
+    ctxGame.strokeStyle = `hsla(${shape.hue}, 100%, 80%, ${0.15 + 0.1 * Math.sin(time * 2)})`;
+    ctxGame.lineWidth = 2;
+    ctxGame.stroke();
+  });
+}
+
+function handleClick(e) {
+  if (isProcessing || gameState !== 'playing') return;
+
+  const rect = gameCanvas.getBoundingClientRect();
+  const mx = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
+  const my = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
+
+  for (const shape of shapes) {
+    const dx = mx - shape.x;
+    const dy = my - shape.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const hitRadius = shape.size * 1.5;
+
+    if (dist < hitRadius) {
+      isProcessing = true;
+      if (shape.isTarget) {
+        playCorrect();
+        const comboBonus = Math.floor(combo * 10);
+        const points = 100 + comboBonus;
+        score += points;
+        matchedCount++;
+        combo++;
+        if (combo > bestCombo) bestCombo = combo;
+        updateUI();
+
+        if (combo % 3 === 0) {
+          playCombo();
+          spawnComboParticles();
+        }
+
+        spawnParticles(shape.x, shape.y, shape.hue, 40);
+        promptEl.className = 'correct';
+        setTimeout(() => { promptEl.className = ''; }, 300);
+
+        setTimeout(() => {
+          spawnShapes();
+          isProcessing = false;
+        }, 300);
+      } else {
+        playWrong();
+        lives--;
+        combo = 1;
+        updateUI();
+        promptEl.className = 'wrong';
+        spawnParticles(shape.x, shape.y, 0, 20);
+
+        if (lives <= 0) {
+          setTimeout(() => endGame(), 400);
+        } else {
+          setTimeout(() => {
+            promptEl.className = '';
+            spawnShapes();
+            isProcessing = false;
+          }, 500);
+        }
+      }
+      return;
+    }
+  }
+}
+
+function endGame() {
+  playGameOver();
+  gameState = 'over';
+  finalScore.textContent = score;
+  matchedCountEl.textContent = matchedCount;
+  bestComboEl.textContent = bestCombo;
+  gameOverScreen.classList.add('show');
+
+  for (let i = 0; i < 100; i++) {
+    const x = Math.random() * W;
+    const y = Math.random() * H;
+    const hue = Math.random() * 360;
+    particles.push(new Particle(x, y, hue, 'confetti'));
+    particles.push(new Particle(x, y, hue, 'burst'));
+  }
+}
+
+function update() {
+  time += 0.016;
+
+  if (gameState === 'playing') {
+    timer -= 0.016;
+    timerFill.style.width = `${Math.max(0, (timer / maxTimer) * 100)}%`;
+
+    const pct = timer / maxTimer;
+    if (pct > 0.5) {
+      timerFill.style.background = 'linear-gradient(90deg, #00ff88, #ffd700)';
+    } else if (pct > 0.25) {
+      timerFill.style.background = 'linear-gradient(90deg, #ffd700, #ff6b6b)';
+    } else {
+      timerFill.style.background = '#ff3355';
+      timerFill.style.boxShadow = `0 0 30px rgba(255, 51, 85, 0.5)`;
+    }
+
+    if (timer <= 0 && !isProcessing) {
+      isProcessing = true;
+      lives--;
+      combo = 1;
+      updateUI();
+      promptEl.className = 'wrong';
+      playWrong();
+
+      if (lives <= 0) {
+        setTimeout(() => endGame(), 400);
+      } else {
+        setTimeout(() => {
+          promptEl.className = '';
+          spawnShapes();
+          isProcessing = false;
+        }, 500);
+      }
+    }
+
+    const elapsed = Math.floor(time / 30);
+    difficulty = 1 + elapsed * 0.5;
+    maxTimer = Math.max(1.5, 3 - elapsed * 0.15);
+    spawnInterval = Math.max(1.5, 2.5 - elapsed * 0.1);
+  }
+
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => p.update());
+}
+
+function draw() {
+  drawBackground(time);
+
+  ctxGame.clearRect(0, 0, W, H);
+  if (gameState === 'playing') {
+    drawShapes();
+  }
+
+  ctxParticle.clearRect(0, 0, W, H);
+  particles.forEach(p => p.draw(ctxParticle));
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+  initAudio();
+  score = 0;
+  lives = MAX_LIVES;
+  combo = 1;
+  bestCombo = 1;
+  matchedCount = 0;
+  difficulty = 1;
+  time = 0;
+  particles = [];
+  gameState = 'playing';
+  startScreen.classList.add('hidden');
+  gameOverScreen.classList.remove('show');
+  updateUI();
+  spawnShapes();
+}
+
+startBtn.addEventListener('click', startGame);
+restartBtn.addEventListener('click', startGame);
+
+gameCanvas.addEventListener('click', handleClick);
+gameCanvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  handleClick(e);
+}, { passive: false });
+
+initBackground();
+updateLives();
+setPrompt(SHAPES[0]);
+gameLoop();
+
+window.addEventListener('resize', () => {
+  resize();
+  initBackground();
+});
+</script>
+</body>
+</html>
