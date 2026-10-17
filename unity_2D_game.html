@@ -2,10 +2,202 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Unity 2D 게임 프로젝트</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unity 2D 게임 프로젝트 | ATC 전시 준비</title>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: #222;
+            background-color: #f8f9fa;
+        }
+        header {
+            border-bottom: 2px solid #111;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .badge-group {
+            margin-bottom: 12px;
+        }
+        .badge {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .badge-secondary {
+            background-color: #6c757d;
+        }
+        h1 {
+            margin: 8px 0;
+            font-size: 32px;
+            letter-spacing: -0.5px;
+        }
+        .meta {
+            color: #666;
+            font-size: 15px;
+        }
+        section {
+            background: white;
+            padding: 28px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            margin-bottom: 25px;
+        }
+        h2 {
+            border-left: 4px solid #007bff;
+            padding-left: 12px;
+            margin-top: 0;
+            font-size: 20px;
+            color: #111;
+        }
+        .media-placeholder {
+            width: 100%;
+            height: 320px;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #6c757d;
+            font-weight: 600;
+            margin: 15px 0;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .highlight-box {
+            background-color: #eef6ff;
+            border: 1px solid #cce5ff;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Unity 2D 게임 개발</h1>
-    <p>----</p>
+
+    <header>
+        <div class="badge-group">
+            <span class="badge">ATC 전시 참여 예정</span>
+            <span class="badge badge-secondary">4인 팀 프로젝트</span>
+        </div>
+        <h1>Unity 2D 게임 개발 및 전시</h1>
+        <p class="meta">서강대학교 아트앤테크놀로지 (ATC) | Unity 2D 기반 게임</p>
+    </header>
+
+    <section>
+        <h2>🎮 프로젝트 개요 & 팀 협업</h2>
+        <p>
+            지식융합미디어학부 26학번 팀원 4명이 아이디어 기획부터 핵심 시스템 설계, Unity 2D 기반 게임 개발까지 공동으로 함께 완성한 <strong>추리 · 퍼즐 · 개그 장르</strong>의 프로젝트명 <strong>"한방의 레시피"</strong>입니다.
+        </p>
+
+        <ul style="line-height: 1.8; margin-top: 10px;">
+            <li><strong>프로젝트명:</strong> 한방의 레시피</li>
+            <li><strong>장르:</strong> 추리 / 퍼즐 / 개그</li>
+            <li><strong>볼륨:</strong> 총 4개 챕터 (각 챕터당 3개 라운드 구성)</li>
+            <li><strong>전시 안내:</strong> 2026년 11월 말 <strong>ATC 전시회</strong>에 출품 예정 (현장 플레이 지원)</li>
+        </ul>
+        <img src="ATC_location.png" alt="ATC 작품 배치도" style="width: 100%; border-radius: 8px;">
+        
+        <p>
+            - ATC 작품 배치도
+        </p>
+       
+
+
+        
+    </section>
+
+    <section>
+        <h2>🏪 담당 챕터: Round 4 (편의점)</h2>
+        <p>
+            게임의 전체적인 주제는 <strong>'다양한 장소에 나타나는 빌런들을 참신하고 기발한 방법으로 퇴치하는 것'</strong>입니다. 
+            총 4개의 장소 중, 제가 개발을 담당한 <strong>편의점 챕터</strong>에서는 매장에 등장하는 진상 손님들을 참신하고 재미있는 퍼즐 요소로 쫓아내는 스테이지를 구현했습니다.
+        </p>
+        <p style="margin-top: 20px; font-weight: bold;">
+            아래는 직접 구상하고 개발한 편의점 챕터의 유니티 구동 화면입니다.
+        </p>
+
+        <video controls width="100%" style="border-radius: 8px;">
+            <source src="Round_1.mp4" type="video/mp4">
+                브라우저가 비디오 태그를 지원하지 않습니다.
+        </video>
+        <p>
+
+            - Round 1 게임 플레이 화면
+        
+        </p>
+        <br><br>
+        <video controls width="100%" style="border-radius: 8px;">
+            <source src="Round_2.mp4" type="video/mp4">
+                브라우저가 비디오 태그를 지원하지 않습니다.
+        </video>
+
+        <p>
+
+            - Round 2 게임 플레이 화면
+
+        </p>
+        <br><br>
+        <video controls width="100%" style="border-radius: 8px;">
+            <source src="Round_3.mp4" type="video/mp4">
+                브라우저가 비디오 태그를 지원하지 않습니다.
+        </video>
+
+        <p>
+
+            - Round 3 게임 플레이 화면
+
+        </p>
+
+
+
+    <section>
+        <h2>🛠️ 개발 과정 & 문제 해결 (Troubleshooting)</h2>
+        <p>
+            게임 개발에는 <strong>Unity Hub(Unity 2D Engine)</strong>와 <strong>VS Code(C# Scripting)</strong>를 사용했습니다. 
+            개발 진행 중 기술적인 한계나 복잡한 C# 로직 구현이 필요한 구간에서는 AI 보조 도구를 적극적으로 활용하여 코드 기반을 다졌습니다.
+        </p>
+        <p>
+            그러나 AI가 생성해 준 코드를 프로젝트에 적용하는 과정에서 코드와 코드 간의 상호작용 꼬임, 오브젝트 참조(NullReferenceException), AI의 과도한 추론으로 인해 생긴 코드 오작동 등 다수의 디버깅 이슈가 발생했습니다.
+        </p>
+        
+        <div class="highlight-box" style="margin-top: 15px;">
+            <strong>대표적인 해결 경험 & 배운 점:</strong>
+            <ul>
+                <li>
+                    <strong>AI 생성 코드의 검증 및 구조화:</strong> 
+                    제공받은 C# 코드를 그대로 적용하기보다 제가 구상한 흐름에 맞게 직접 코드를 다시 조정하고, 예외 처리를 확실히 하며 안정성을 확보했습니다.
+                </li>
+                <li>
+                    <strong>디버깅 능력 향상:</strong> 
+                    원인을 알 수 없는 스크립트 에러와 이벤트 매니저 상호작용 오류를 하나씩 추적하면서, Unity 2D 게임 라이프사이클에 대한 이해도를 크게 높일 수 있었습니다.
+                </li>
+                <li>
+                    <strong>기술적 주도성 확보:</strong> 
+                    생성형 AI를 단순한 답안지가 아닌 '개발 보조 도구'로 활용하는 방법을 터득하였으며, 문제의 근본적인 원인을 다각도로 분석하여 고치는 경험을 쌓았습니다.
+                </li>
+            </ul>
+        </div>
+    </section>
+    <section>
+        <h2>🏛️ ATC 전시 준비 현황</h2>
+        <p>
+            현재 ATC 전시를 앞두고 관객 인터랙션 최적화, 사운드 연동 및 최종 버그 수정을 진행하고 있습니다. 
+            전시 현장에서 관객들에게 몰입감 있는 경험을 전달하는 것을 목표로 하고 있습니다.
+        </p>
+    </section>
+
 </body>
 </html>
